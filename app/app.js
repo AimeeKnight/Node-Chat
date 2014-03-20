@@ -25,7 +25,7 @@ app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.cookieParser());
 app.use(express.session({
-  store : new RedisStore({host: 'localhost', port: 6379}),
+  store : new RedisStore({host: '192.168.11.98', port: 6379}),
   secret: 'change-this-to-a-super-secret-message',
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
@@ -37,5 +37,11 @@ server.listen(port, function(){
   console.log('Node server listening. Port: ' + port + ', Database: ' + dbname);
 });
 
-module.exports = app;
+// browser sends the message 'connection'
+// server receives the message and does what you want it to
+var sockets = require('./lib/sockets');
+var io = require('socket.io').listen(server, {log:true, 'log level':2});
+// when server connects to app, call sockets.connection function
+io.of('/app').on('connection', sockets.connection);
 
+module.exports = app;
